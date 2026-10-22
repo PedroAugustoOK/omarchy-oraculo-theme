@@ -184,6 +184,10 @@ repository, README and artwork keep the proper spelling.
   restored. Staging produced 28 files, **no ignored-file warnings**, and no
   unresolved `{{ ... }}` placeholders in any text config. `omarchy theme
   current` reported `Oraculo Light` and then `Oraculo`.
+- A clean install from the public URL was exercised in an isolated `HOME`
+  (`omarchy theme install https://github.com/PedroAugustoOK/omarchy-oraculo-theme`
+  and the light sibling). Both cloned, staged and applied without ignored-file
+  warnings; the staged text configs had zero unresolved placeholders.
 - The active background remained `Oraculo Veil` after the round trip.
 
 ## 7. Limits and decisions
