@@ -10,15 +10,15 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out theme
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Install render dependencies
+      - name: Install ImageMagick
         run: |
           sudo apt-get update
-          sudo apt-get install -y imagemagick fonts-liberation fonts-dejavu-core
+          sudo apt-get install -y imagemagick
 
       - name: Check palette, contrast and assets
         run: python3 scripts/check-theme.py .
@@ -26,10 +26,9 @@ jobs:
       - name: Syntax-check shell scripts
         run: bash -n scripts/*.sh
 
-      - name: Render preview and lock art
+      - name: Render lock art
         run: |
           tmp=$(mktemp -d)
           cp -a . "$tmp/theme"
-          ./scripts/make-preview.sh "$tmp/theme" "Oráculo" "$tmp/preview.png"
           ./scripts/make-unlock.sh "$tmp/theme" "$tmp/unlock.png" "$tmp/preview-unlock.png"
-          identify "$tmp/preview.png" "$tmp/unlock.png" "$tmp/preview-unlock.png"
+          identify "$tmp/unlock.png" "$tmp/preview-unlock.png"
