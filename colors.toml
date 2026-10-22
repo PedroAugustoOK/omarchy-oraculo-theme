@@ -1,0 +1,39 @@
+# Oráculo — a steel-blue Omarchy theme.
+# Deep blue-black surfaces, a calm sky-steel accent, cool legible text.
+# All 26 canonical keys are explicit (no reliance on derived floors).
+
+mode = "dark"
+
+accent = "#5FA8D3"
+selection = "#1E3446"
+muted = "#7A8FA3"
+
+background = "#0B1118"
+dark_background = "#080D13"
+darker_background = "#060A0F"
+lighter_background = "#15212D"
+
+foreground = "#E6EEF5"
+dark_foreground = "#9DB0C2"
+light_foreground = "#F0F6FA"
+bright_foreground = "#FAFCFE"
+
+red = "#E2686F"
+yellow = "#DDB86A"
+orange = "#DD8B5F"
+green = "#7FB98A"
+cyan = "#6CC5CE"
+blue = "#5FA8D3"
+magenta = "#B98CD4"
+brown = "#A07860"
+
+bright_red = "#F4848B"
+bright_yellow = "#EFCB84"
+bright_green = "#98D3A4"
+bright_cyan = "#8ADDE4"
+bright_blue = "#82C4E8"
+bright_magenta = "#D2A8E8"
+
+# Steel-blue gradient window borders, muted slate inactive borders.
+hyprland_active_border = "rgba(5FA8D3ee) rgba(1E4A6Dee) 45deg"
+hyprland_inactive_border = "rgba(7A8FA3aa)"
