@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out theme
+        uses: actions/checkout@v4
+
+      - name: Install render dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y imagemagick fonts-liberation fonts-dejavu-core
+
+      - name: Check palette, contrast and assets
+        run: python3 scripts/check-theme.py .
+
+      - name: Syntax-check shell scripts
+        run: bash -n scripts/*.sh
+
+      - name: Render preview and lock art
+        run: |
+          tmp=$(mktemp -d)
+          cp -a . "$tmp/theme"
+          ./scripts/make-preview.sh "$tmp/theme" "Oráculo" "$tmp/preview.png"
+          ./scripts/make-unlock.sh "$tmp/theme" "$tmp/unlock.png" "$tmp/preview-unlock.png"
+          identify "$tmp/preview.png" "$tmp/unlock.png" "$tmp/preview-unlock.png"

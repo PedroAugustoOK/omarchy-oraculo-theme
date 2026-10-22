@@ -15,20 +15,42 @@
 #   dot     r 30 at the centre
 #   cut     rectangle -420..420 x -15..15, rotated 45deg about the centre
 #
-# The halo is the accent at a soft opacity profile, matching the family's
-# lock art without turning into a stain on light paper.
+# The 1108x523 canvas is the same size as Tokyo Night's stock unlock art;
+# the 1920x1080 preview follows the stock preview canvas. The halo is the
+# accent at a soft opacity profile, without turning into a stain on light paper.
 set -euo pipefail
 
 theme_dir=${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 out_unlock=${2:-$theme_dir/unlock.png}
 out_preview=${3:-$theme_dir/preview-unlock.png}
 
+if command -v magick >/dev/null 2>&1; then
+  MAGICK=magick
+elif command -v convert >/dev/null 2>&1; then
+  MAGICK=convert
+else
+  echo "ImageMagick is required (magick or convert)" >&2
+  exit 1
+fi
+
+if [[ ! -f $theme_dir/colors.toml ]]; then
+  echo "missing $theme_dir/colors.toml" >&2
+  exit 1
+fi
+
 W=1108
 H=523
 CX=554
 CY=261
 
-color() { omarchy-theme-color "$1" --file "$theme_dir/colors.toml"; }
+color() {
+  if command -v omarchy-theme-color >/dev/null 2>&1; then
+    omarchy-theme-color "$1" --file "$theme_dir/colors.toml"
+  else
+    sed -nE "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\"([^\"]+)\".*/\\1/p" \
+      "$theme_dir/colors.toml" | head -n 1
+  fi
+}
 
 accent=$(color accent)
 background=$(color background)
@@ -38,7 +60,7 @@ tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 
 # --- the three rings, cut by one 45-degree stripe ---------------------------
-magick -size ${W}x${H} xc:black \
+"$MAGICK" -size ${W}x${H} xc:black \
   -fill white -draw "circle $CX,$CY $((CX + 208)),$CY" \
   -fill black -draw "circle $CX,$CY $((CX + 182)),$CY" \
   -fill white -draw "circle $CX,$CY $((CX + 148)),$CY" \
@@ -47,43 +69,43 @@ magick -size ${W}x${H} xc:black \
   -fill black -draw "circle $CX,$CY $((CX + 64)),$CY" \
   "$tmp/rings.png"
 
-magick "$tmp/rings.png" \
+"$MAGICK" "$tmp/rings.png" \
   -fill black -draw "translate $CX,$CY rotate 45 rectangle -420,-15 420,15" \
   "$tmp/rings-cut.png"
 
 # --- the still point --------------------------------------------------------
-magick -size ${W}x${H} xc:black \
+"$MAGICK" -size ${W}x${H} xc:black \
   -fill white -draw "circle $CX,$CY $((CX + 30)),$CY" \
   "$tmp/dot.png"
 
-magick "$tmp/rings-cut.png" "$tmp/dot.png" \
+"$MAGICK" "$tmp/rings-cut.png" "$tmp/dot.png" \
   -compose Lighten -composite "$tmp/silhouette.png"
 
 # --- the mark ---------------------------------------------------------------
 # Halo: a wide blur of the silhouette on a padded canvas so the glow is not
 # clipped at the edges.
-magick "$tmp/silhouette.png" \
+"$MAGICK" "$tmp/silhouette.png" \
   -background black -gravity center -extent $((W + 160))x$((H + 160)) \
   -blur 0x24 \
   -gravity center -crop ${W}x${H}+0+0 +repage "$tmp/halo.png"
 
 # The forms themselves, in the theme accent, with a one-pixel soft edge.
-magick "$tmp/silhouette.png" -blur 0x0.8 "$tmp/forms.png"
+"$MAGICK" "$tmp/silhouette.png" -blur 0x0.8 "$tmp/forms.png"
 
-magick -size ${W}x${H} "xc:$accent" "$tmp/halo.png" -alpha off \
+"$MAGICK" -size ${W}x${H} "xc:$accent" "$tmp/halo.png" -alpha off \
   -compose CopyOpacity -composite "$tmp/halo-color.png"
 
-magick -size ${W}x${H} "xc:$accent" "$tmp/forms.png" -alpha off \
+"$MAGICK" -size ${W}x${H} "xc:$accent" "$tmp/forms.png" -alpha off \
   -compose CopyOpacity -composite "$tmp/forms-color.png"
 
-magick "$tmp/halo-color.png" "$tmp/forms-color.png" -compose Over -composite \
+"$MAGICK" "$tmp/halo-color.png" "$tmp/forms-color.png" -compose Over -composite \
   -depth 8 -strip "$out_unlock"
 
 # --- lock screen preview ----------------------------------------------------
 PW=1920
 PH=1080
 
-magick -size ${PW}x${PH} "xc:$background" "$out_unlock" \
+"$MAGICK" -size ${PW}x${PH} "xc:$background" "$out_unlock" \
   -gravity north -geometry +0+278 -compose Over -composite \
   "$tmp/preview-mark.png"
 
@@ -93,7 +115,7 @@ FIELD_Y=842
 FIELD_W=283
 FIELD_H=45
 
-magick -size ${PW}x${PH} xc:none \
+"$MAGICK" -size ${PW}x${PH} xc:none \
   -fill none -stroke "$foreground" -strokewidth 2 \
   -draw "rectangle $FIELD_X,$FIELD_Y $((FIELD_X + FIELD_W)),$((FIELD_Y + FIELD_H))" \
   -fill "$foreground" -stroke none \
@@ -104,7 +126,7 @@ magick -size ${PW}x${PH} xc:none \
   "$tmp/field.png"
 
 # Lock glyph: shackle, body and keyhole.
-magick -size ${PW}x${PH} xc:none \
+"$MAGICK" -size ${PW}x${PH} xc:none \
   -fill none -stroke "$foreground" -strokewidth 5 \
   -draw "arc 777,848.5 792,870.5 180,360" \
   -fill "$foreground" -stroke none \
@@ -113,8 +135,8 @@ magick -size ${PW}x${PH} xc:none \
   -draw "roundrectangle 784,868 786,875 1,1" \
   "$tmp/lock.png"
 
-magick "$tmp/preview-mark.png" "$tmp/lock.png" -compose Over -composite "$tmp/step-lock.png"
-magick "$tmp/step-lock.png" "$tmp/field.png" -compose Over -composite \
+"$MAGICK" "$tmp/preview-mark.png" "$tmp/lock.png" -compose Over -composite "$tmp/step-lock.png"
+"$MAGICK" "$tmp/step-lock.png" "$tmp/field.png" -compose Over -composite \
   -depth 8 -strip "$out_preview"
 
 echo "wrote $out_unlock"
