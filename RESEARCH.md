@@ -147,6 +147,12 @@ Name normalization is worth noting: Omarchy derives the display name from the
 slug, so the installed theme appears as **Oraculo**, without the accent. The
 repository, README and artwork keep the proper spelling.
 
+On this development machine `~/.config/omarchy/themes/oraculo` and
+`~/.config/omarchy/themes/oraculo-light` are symlinks to the working copies in
+`~/dots/AnkhDiverses/`. Symlinked themes are staged in full (no deny list), but
+`omarchy theme update` intentionally skips them; update the working copies with
+`git -C <theme-dir> pull` instead.
+
 ## 5. Assets
 
 - **Wallpapers:** three per theme, 2560×1440, PNG, 54–73 KB. They are
