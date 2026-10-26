@@ -8,6 +8,7 @@
 # Driven entirely by colors.toml. The three compositions are a bloom, a
 # vertical recess and a diagonal wash.
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/palette.sh"
 
 theme_dir=${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 out_dir="$theme_dir/backgrounds"
@@ -31,14 +32,6 @@ W=3840
 H=2160
 seed=20261022
 
-color() {
-  if command -v omarchy-theme-color >/dev/null 2>&1; then
-    omarchy-theme-color "$1" --file "$theme_dir/colors.toml"
-  else
-    sed -nE "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\"([^\"]+)\".*/\\1/p" \
-      "$theme_dir/colors.toml" | head -n 1
-  fi
-}
 
 rgba() {
   local hex=${1#\#} alpha=$2

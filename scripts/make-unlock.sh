@@ -19,6 +19,7 @@
 # the 1920x1080 preview follows the stock preview canvas. The halo is the
 # accent at a soft opacity profile, without turning into a stain on light paper.
 set -euo pipefail
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/palette.sh"
 
 theme_dir=${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 out_unlock=${2:-$theme_dir/unlock.png}
@@ -43,14 +44,6 @@ H=523
 CX=554
 CY=261
 
-color() {
-  if command -v omarchy-theme-color >/dev/null 2>&1; then
-    omarchy-theme-color "$1" --file "$theme_dir/colors.toml"
-  else
-    sed -nE "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*\"([^\"]+)\".*/\\1/p" \
-      "$theme_dir/colors.toml" | head -n 1
-  fi
-}
 
 accent=$(color accent)
 background=$(color background)
