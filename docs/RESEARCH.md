@@ -204,8 +204,9 @@ On this development machine `~/.config/omarchy/themes/oraculo` and
   selected-text contrast, asset dimensions, `keyboard.rgb`, denied files and
   symlinks. Both themes pass with no blocking problems. The notes record the
   selection-fill exception and the light bright-ANSI chrome limitation.
-- The README claim checker verifies every hex code and every contrast ratio
-  quoted in both READMEs against the real `colors.toml`.
+- In the previous long-form README, palette figures were checked against
+  `colors.toml`. The current README omits numeric palette claims; use
+  `scripts/check-theme.py` for the maintained palette and contrast audit.
 - The lock and wallpaper scripts were re-run after the final palette change.
   The lock art is deterministic (`compare -metric AE` = 0 across two runs); the
   wallpaper script uses a fixed seed (`20261022`) and the same ImageMagick
